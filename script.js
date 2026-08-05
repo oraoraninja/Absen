@@ -126,7 +126,7 @@ const btnSelfie = document.getElementById("btnSelfie");
 const btnUlang = document.getElementById("btnUlang");
 const placeholder = document.getElementById("cameraPlaceholder");
 
-// Aktifkan Kamera
+// 1. Aktifkan Kamera
 if (btnKamera) {
     btnKamera.addEventListener("click", async function () {
         try {
@@ -151,57 +151,51 @@ if (btnKamera) {
     });
 }
 
-// Ambil Selfie (Menggunakan Kompresi JPEG 0.5)
+// 2. Ambil Selfie (Disesuaikan dengan Preview Kamera)
 if (btnSelfie) {
     btnSelfie.addEventListener("click", function () {
-        if (!video || !canvas) return;
+        if (!stream) return;
 
+        const context = canvas.getContext("2d");
+
+        // Set ukuran canvas sesuai resolusi video asli
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Reset transformasi sebelumnya jika ada
+        context.setTransform(1, 0, 0, 1, 0, 0);
 
-        // Kompresi gambar ke JPEG 0.5 agar tidak membengkak saat dikirim ke Apps Script
-        fotoSelfieTerakhir = canvas.toDataURL("image/jpeg", 0.5);
+        // Balikkan canvas secara horizontal agar persis seperti efek mirror pada video preview
+        context.translate(canvas.width, 0);
+        context.scale(-1, 1);
 
+        // Gambar elemen video ke canvas yang telah dibalik
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert canvas ke Base64 / URL Gambar
+        fotoSelfieTerakhir = canvas.toDataURL("image/jpeg");
+
+        // Tampilkan hasil foto dan sembunyikan video
         if (hasilFoto) {
             hasilFoto.src = fotoSelfieTerakhir;
             hasilFoto.style.display = "block";
         }
-        video.style.display = "none";
+        if (video) video.style.display = "none";
 
-        btnSelfie.style.display = "none";
+        // Atur tampilan tombol
+        if (btnSelfie) btnSelfie.style.display = "none";
         if (btnUlang) btnUlang.style.display = "flex";
 
-        if (btnKamera) {
-            btnKamera.style.display = "flex"; 
-            btnKamera.innerHTML = '<i class="fa-solid fa-circle-check"></i> Selfie Berhasil';
-            btnKamera.style.background = "#16a34a";
-            btnKamera.style.pointerEvents = "none";
-        }
-
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
+        // Matikan stream kamera untuk menghemat daya
+        stream.getTracks().forEach(track => track.stop());
     });
 }
 
-// Ambil Ulang Foto
+// 3. Ambil Ulang Foto
 if (btnUlang) {
     btnUlang.addEventListener("click", function () {
-        fotoSelfieTerakhir = null;
-        if (hasilFoto) hasilFoto.style.display = "none";
-        btnUlang.style.display = "none";
-        
-        if (btnKamera) {
-            btnKamera.style.display = "flex";
-            btnKamera.innerHTML = '<i class="fa-solid fa-video"></i> Aktifkan Kamera';
-            btnKamera.style.background = "#2563eb"; 
-            btnKamera.style.pointerEvents = "auto"; 
-        }
-        
-        if (placeholder) placeholder.style.display = "block";
+        // Klik ulang akan memicu tombol aktifkan kamera kembali
+        if (btnKamera) btnKamera.click();
     });
 }
 
