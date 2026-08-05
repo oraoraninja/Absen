@@ -2,20 +2,27 @@
 <html lang="id">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Absensi Online</title>
 
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
+
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <!-- CSS PERBAIKAN: Hapus "css/" jika style.css sejajar dengan index.html -->
-    <link rel="stylesheet" href="style.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
 </head>
 
 <body>
@@ -26,35 +33,35 @@
 
             <div class="header">
 
-    <div class="logo">
-        <img src="assets/logo.png" alt="Logo">
-    </div>
+                <div class="logo">
+                    <img src="assets/logo.png" alt="Logo">
+                </div>
 
-    <h1>PT. PANDU PERSADA</h1>
+                <h1>PT. PANDU PERSADA</h1>
 
-    <p class="subtitle">
-        Sistem Absensi Online
-    </p>
+                <p class="subtitle">
+                    Sistem Absensi Online
+                </p>
 
-    <div class="status-card">
+                <div class="status-card">
 
-        <span class="status-icon">
-            🟢
-        </span>
+                    <span class="status-icon">
+                        🟢
+                    </span>
 
-        <div>
+                    <div>
 
-            <strong>Status Hari Ini</strong><br>
+                        <strong>Status Hari Ini</strong><br>
 
-            <span id="statusHari">
-                Belum Absen
-            </span>
+                        <span id="statusHari">
+                            Belum Absen
+                        </span>
 
-        </div>
+                    </div>
 
-    </div>
+                </div>
 
-</div>
+            </div>
 
             <!-- ==========================
                  INFORMASI
@@ -120,95 +127,110 @@
 
             <form id="formAbsensi">
 
-                <!-- Nama -->
-<div class="form-grid">
+                <!-- Grid 1: Nama, Jabatan, Status -->
+                <div class="form-grid-3">
 
-    <div class="input-group">
+                    <div class="input-group">
 
-        <label>
-            <i class="fa-solid fa-user"></i>
-            Nama Pegawai
-        </label>
+                        <label>
+                            <i class="fa-solid fa-user"></i>
+                            Nama Pegawai
+                        </label>
 
-        <input
-    type="text"
-    id="nama"
-    placeholder="Masukkan nama lengkap">
+                        <input
+                            type="text"
+                            id="nama"
+                            placeholder="Masukkan nama lengkap">
 
-    </div>
+                    </div>
 
-    <div class="input-group">
+                    <div class="input-group">
 
-        <label>
-            <i class="fa-solid fa-circle-check"></i>
-            Status
-        </label>
+                        <label>
+                            <i class="fa-solid fa-briefcase"></i>
+                            Jabatan
+                        </label>
 
-        <select id="status">
-            <option>Hadir</option>
-            <option>Izin</option>
-            <option>Sakit</option>
-            <option>Cuti</option>
-        </select>
+                        <input
+                            type="text"
+                            id="jabatan"
+                            placeholder="Masukkan jabatan">
 
-    </div>
+                    </div>
 
-</div>
+                    <div class="input-group">
 
-<div class="form-grid-3">
+                        <label>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Status
+                        </label>
 
-    <div class="input-group">
+                        <select id="status">
+                            <option>Hadir</option>
+                            <option>Izin</option>
+                            <option>Sakit</option>
+                            <option>Cuti</option>
+                        </select>
 
-        <label>
-            <i class="fa-solid fa-calendar"></i>
-            Tanggal
-        </label>
+                    </div>
 
-        <input type="date" id="tanggalAbsen">
+                </div>
 
-    </div>
+                <!-- Grid 2: Tanggal, Jam Masuk, Jam Pulang -->
+                <div class="form-grid-3">
 
-    <div class="input-group">
+                    <div class="input-group">
 
-        <label>
-            <i class="fa-solid fa-right-to-bracket"></i>
-            Jam Masuk
-        </label>
+                        <label>
+                            <i class="fa-solid fa-calendar"></i>
+                            Tanggal
+                        </label>
 
-        <div class="time-group">
+                        <input type="date" id="tanggalAbsen">
 
-    <input type="time" id="jamMasuk">
+                    </div>
 
-    <button type="button" id="btnNowMasuk" class="btn-time">
-        <i class="fa-solid fa-clock"></i>
-    </button>
+                    <div class="input-group">
 
-</div>
+                        <label>
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                            Jam Masuk
+                        </label>
 
-    </div>
+                        <div class="time-group">
 
-    <div class="input-group">
+                            <input type="time" id="jamMasuk">
 
-        <label>
-            <i class="fa-solid fa-right-from-bracket"></i>
-            Jam Pulang
-        </label>
+                            <button type="button" id="btnNowMasuk" class="btn-time">
+                                <i class="fa-solid fa-clock"></i>
+                            </button>
 
-        <div class="time-group">
+                        </div>
 
-    <input type="time" id="jamPulang">
+                    </div>
 
-    <button type="button" id="btnNowPulang" class="btn-time">
-        <i class="fa-solid fa-clock"></i>
-    </button>
+                    <div class="input-group">
 
-</div>
+                        <label>
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            Jam Pulang
+                        </label>
 
-    </div>
+                        <div class="time-group">
 
-</div>
-                <!-- Alasan -->
+                            <input type="time" id="jamPulang">
 
+                            <button type="button" id="btnNowPulang" class="btn-time">
+                                <i class="fa-solid fa-clock"></i>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Alasan Pengisian Tanggal Sebelumnya -->
                 <div
                     class="input-group"
                     id="alasanGroup"
@@ -229,90 +251,107 @@
 
                 </div>
 
-                <!-- Tombol -->
-<!-- ==========================
-     SELFIE
-========================== -->
+                <!-- Keterangan / Kegiatan -->
+                <div class="input-group">
 
-<div class="selfie-section">
+                    <label>
 
-    <label>
-        <i class="fa-solid fa-camera"></i>
-        Foto Selfie
-    </label>
+                        <i class="fa-solid fa-clipboard-list"></i>
 
-    <!-- Tombol Aktifkan Kamera -->
-    <button
-        type="button"
-        id="btnKamera"
-        class="btn-camera">
+                        Keterangan Kegiatan
 
-        <i class="fa-solid fa-video"></i>
-        Aktifkan Kamera
+                    </label>
 
-    </button>
+                    <textarea
+                        id="keterangan"
+                        rows="4"
+                        placeholder="Tuliskan ringkasan kegiatan hari ini..."></textarea>
 
-    <!-- Preview Kamera -->
-    <div class="camera-box">
+                </div>
 
-        <video
-            id="video"
-            autoplay
-            playsinline
-            style="display:none;">
-        </video>
+                <!-- ==========================
+                     SELFIE
+                ========================== -->
 
-        <canvas
-            id="canvas"
-            style="display:none;">
-        </canvas>
+                <div class="selfie-section">
 
-        <img
-            id="hasilFoto"
-            alt="Selfie"
-            style="display:none;">
+                    <label>
+                        <i class="fa-solid fa-camera"></i>
+                        Foto Selfie
+                    </label>
 
-        <div
-            id="cameraPlaceholder"
-            class="camera-placeholder">
+                    <!-- Tombol Aktifkan Kamera -->
+                    <button
+                        type="button"
+                        id="btnKamera"
+                        class="btn-camera">
 
-            <i class="fa-solid fa-camera"></i>
+                        <i class="fa-solid fa-video"></i>
+                        Aktifkan Kamera
 
-            <p>Belum ada foto selfie</p>
+                    </button>
 
-        </div>
+                    <!-- Preview Kamera -->
+                    <div class="camera-box">
 
-    </div>
+                        <video
+                            id="video"
+                            autoplay
+                            playsinline
+                            style="display:none;">
+                        </video>
 
-    <!-- Tombol Ambil Selfie -->
-    <button
-        type="button"
-        id="btnSelfie"
-        class="btn-selfie"
-        style="display:none;">
+                        <canvas
+                            id="canvas"
+                            style="display:none;">
+                        </canvas>
 
-        <i class="fa-solid fa-camera"></i>
+                        <img
+                            id="hasilFoto"
+                            alt="Selfie"
+                            style="display:none;">
 
-        Ambil Selfie
+                        <div
+                            id="cameraPlaceholder"
+                            class="camera-placeholder">
 
-    </button>
+                            <i class="fa-solid fa-camera"></i>
 
-    <!-- Tombol Ambil Ulang -->
-<button
-    type="button"
-    id="btnUlang"
-    class="btn-selfie"
-    style="display:none;">
+                            <p>Belum ada foto selfie</p>
 
-    <i class="fa-solid fa-rotate-left"></i>
+                        </div>
 
-    Ambil Ulang
+                    </div>
 
-</button>
+                    <!-- Tombol Ambil Selfie -->
+                    <button
+                        type="button"
+                        id="btnSelfie"
+                        class="btn-selfie"
+                        style="display:none;">
 
-</div> <!-- tutup selfie-section -->
+                        <i class="fa-solid fa-camera"></i>
 
-<div class="button-group">
+                        Ambil Selfie
+
+                    </button>
+
+                    <!-- Tombol Ambil Ulang -->
+                    <button
+                        type="button"
+                        id="btnUlang"
+                        class="btn-selfie"
+                        style="display:none;">
+
+                        <i class="fa-solid fa-rotate-left"></i>
+
+                        Ambil Ulang
+
+                    </button>
+
+                </div> <!-- tutup selfie-section -->
+
+                <div class="button-group">
 
                     <button
                         type="button"
