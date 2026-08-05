@@ -236,9 +236,11 @@ const btnMasuk = document.getElementById("btnMasuk");
 if (btnMasuk) {
     btnMasuk.addEventListener("click", function () {
         const nama = document.getElementById("nama")?.value.trim() || "";
+        const jabatan = document.getElementById("jabatan")?.value.trim() || "";
         const tanggal = document.getElementById("tanggalAbsen")?.value || "";
         const masuk = document.getElementById("jamMasuk")?.value || "";
         const status = document.getElementById("status")?.value || "";
+        const keterangan = document.getElementById("keterangan")?.value.trim() || "";
         const alasan = document.getElementById("alasan")?.value.trim() || "";
 
         if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
@@ -252,10 +254,12 @@ if (btnMasuk) {
         const formData = new URLSearchParams();
         formData.append("jenisAbsen", "Absen Masuk");
         formData.append("nama", nama);
+        formData.append("jabatan", jabatan || "-");
         formData.append("tanggal", tanggal);
         formData.append("jamMasuk", masuk);
         formData.append("jamPulang", "-");
         formData.append("status", status);
+        formData.append("keterangan", keterangan || "-");
         formData.append("kehadiran", hasilKeterlambatan);
         formData.append("lokasi", lokasiTerkini);
         formData.append("alasan", alasan || "-");
@@ -263,7 +267,6 @@ if (btnMasuk) {
 
         fetch(SCRIPT_URL, {
             method: "POST",
-            mode: "no-cors",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
@@ -279,9 +282,11 @@ if (btnMasuk) {
                     <b style="color:#16a34a;">ABSEN MASUK BERHASIL & TERSIMPAN</b><br><br>
                     <img src="${fotoSelfieTerakhir}" style="width:200px; height:200px; object-fit:cover; display:block; border-radius:15px; border:3px solid #2563eb; margin-bottom:15px;">
                     <b>Nama:</b> ${nama}<br>
+                    <b>Jabatan:</b> ${jabatan || "-"}<br>
                     <b>Tanggal:</b> ${tanggal}<br>
                     <b>Jam Masuk:</b> ${masuk}<br>
                     <b>Status:</b> ${status}<br>
+                    <b>Keterangan:</b> ${keterangan || "-"}<br>
                     <b>Kehadiran:</b> ${hasilKeterlambatan}<br>
                     <b>Lokasi:</b> ${lokasiTerkini}<br>
                     <b>Alasan:</b> ${alasan || "-"}
@@ -307,8 +312,10 @@ const btnPulang = document.getElementById("btnPulang");
 if (btnPulang) {
     btnPulang.addEventListener("click", function () {
         const nama = document.getElementById("nama")?.value.trim() || "";
+        const jabatan = document.getElementById("jabatan")?.value.trim() || "";
         const masuk = document.getElementById("jamMasuk")?.value || "";
         const pulang = document.getElementById("jamPulang")?.value || "";
+        const keterangan = document.getElementById("keterangan")?.value.trim() || "";
 
         if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
         if (pulang === "") { alert("Jam pulang harus diisi."); return; }
@@ -321,10 +328,12 @@ if (btnPulang) {
         const formData = new URLSearchParams();
         formData.append("jenisAbsen", "Absen Pulang");
         formData.append("nama", nama);
+        formData.append("jabatan", jabatan || "-");
         formData.append("tanggal", document.getElementById("tanggalAbsen")?.value || "");
         formData.append("jamMasuk", masuk || "-");
         formData.append("jamPulang", pulang);
         formData.append("status", document.getElementById("status")?.value || "");
+        formData.append("keterangan", keterangan || "-");
         formData.append("kehadiran", "-");
         formData.append("lokasi", lokasiTerkini);
         formData.append("alasan", "-");
@@ -332,7 +341,6 @@ if (btnPulang) {
 
         fetch(SCRIPT_URL, {
             method: "POST",
-            mode: "no-cors",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
@@ -349,6 +357,7 @@ if (btnPulang) {
                     <b style="color:#2563eb;">ABSEN PULANG BERHASIL & TERSIMPAN</b><br><br>
                     <img src="${fotoSelfieTerakhir}" style="width:150px; height:150px; object-fit:cover; display:block; border-radius:15px; border:3px solid #2563eb; margin-bottom:15px;">
                     <b>Jam Pulang:</b> ${pulang}<br>
+                    <b>Keterangan:</b> ${keterangan || "-"}<br>
                     <b>Lokasi Pulang:</b> ${lokasiTerkini}
                 `;
             }
