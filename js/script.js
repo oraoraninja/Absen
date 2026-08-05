@@ -229,145 +229,110 @@ if (btnNowPulang) {
 
 
 // ===============================
-// 7. ABSEN MASUK
+// ABSEN MASUK
 // ===============================
-
 const btnMasuk = document.getElementById("btnMasuk");
 if (btnMasuk) {
-    btnMasuk.addEventListener("click", function () {
-        const nama = document.getElementById("nama")?.value.trim() || "";
-        const jabatan = document.getElementById("jabatan")?.value.trim() || "";
-        const tanggal = document.getElementById("tanggalAbsen")?.value || "";
-        const masuk = document.getElementById("jamMasuk")?.value || "";
-        const status = document.getElementById("status")?.value || "";
-        const keterangan = document.getElementById("keterangan")?.value.trim() || "";
-        const alasan = document.getElementById("alasan")?.value.trim() || "";
+  btnMasuk.addEventListener("click", function () {
+    const nama = document.getElementById("nama")?.value.trim() || "";
+    const jabatan = document.getElementById("jabatan")?.value.trim() || "";
+    const status = document.getElementById("status")?.value || "";
+    const tanggal = document.getElementById("tanggalAbsen")?.value || "";
+    const jamMasuk = document.getElementById("jamMasuk")?.value || "";
+    const alasan = document.getElementById("alasan")?.value.trim() || "";
+    const keterangan = document.getElementById("keterangan")?.value.trim() || "";
 
-        if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
-        if (status === "Hadir" && masuk === "") { alert("Jam masuk harus diisi."); return; }
-        if (!fotoSelfieTerakhir) { alert("Silakan ambil foto selfie terlebih dahulu."); return; }
+    if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
+    if (status === "Hadir" && jamMasuk === "") { alert("Jam masuk harus diisi."); return; }
 
-        const hasilKeterlambatan = cekKeterlambatan(masuk);
-        btnMasuk.disabled = true;
-        btnMasuk.innerText = "Mengirim Data...";
+    // Hitung status keterlambatan
+    const hasilKehadiran = typeof cekKeterlambatan === "function" ? cekKeterlambatan(jamMasuk) : "Tepat Waktu";
 
-        const formData = new URLSearchParams();
-        formData.append("jenisAbsen", "Absen Masuk");
-        formData.append("nama", nama);
-        formData.append("jabatan", jabatan || "-");
-        formData.append("tanggal", tanggal);
-        formData.append("jamMasuk", masuk);
-        formData.append("jamPulang", "-");
-        formData.append("status", status);
-        formData.append("keterangan", keterangan || "-");
-        formData.append("kehadiran", hasilKeterlambatan);
-        formData.append("lokasi", lokasiTerkini);
-        formData.append("alasan", alasan || "-");
-        formData.append("fotoSelfie", fotoSelfieTerakhir);
+    btnMasuk.disabled = true;
+    btnMasuk.innerText = "Mengirim Data...";
 
-        fetch(SCRIPT_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: formData.toString()
-        })
-        .then(() => {
-            btnMasuk.disabled = false;
-            btnMasuk.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Absen Masuk';
-            
-            const elHasil = document.getElementById("hasil");
-            if (elHasil) {
-                elHasil.innerHTML = `
-                    <b style="color:#16a34a;">ABSEN MASUK BERHASIL & TERSIMPAN</b><br><br>
-                    <img src="${fotoSelfieTerakhir}" style="width:200px; height:200px; object-fit:cover; display:block; border-radius:15px; border:3px solid #2563eb; margin-bottom:15px;">
-                    <b>Nama:</b> ${nama}<br>
-                    <b>Jabatan:</b> ${jabatan || "-"}<br>
-                    <b>Tanggal:</b> ${tanggal}<br>
-                    <b>Jam Masuk:</b> ${masuk}<br>
-                    <b>Status:</b> ${status}<br>
-                    <b>Keterangan:</b> ${keterangan || "-"}<br>
-                    <b>Kehadiran:</b> ${hasilKeterlambatan}<br>
-                    <b>Lokasi:</b> ${lokasiTerkini}<br>
-                    <b>Alasan:</b> ${alasan || "-"}
-                `;
-            }
-            const elStatusHari = document.getElementById("statusHari");
-            if (elStatusHari) elStatusHari.innerHTML = "🟡 Sudah Absen Masuk";
-        })
-        .catch(err => {
-            btnMasuk.disabled = false;
-            btnMasuk.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Absen Masuk';
-            alert("Gagal mengirim data. Silakan coba lagi.");
-        });
+    const formData = new URLSearchParams();
+    formData.append("jenisAbsen", "Absen Masuk");
+    formData.append("nama", nama);
+    formData.append("jabatan", jabatan || "-");
+    formData.append("tanggal", tanggal);
+    formData.append("jamMasuk", jamMasuk);
+    formData.append("jamPulang", "-");
+    formData.append("status", status);
+    formData.append("keterangan", keterangan || "-");
+    formData.append("kehadiran", hasilKehadiran);
+    formData.append("lokasi", typeof lokasiTerkini !== "undefined" ? lokasiTerkini : "-");
+    formData.append("alasan", alasan || "-");
+    formData.append("fotoSelfie", typeof fotoSelfieTerakhir !== "undefined" ? fotoSelfieTerakhir : "-");
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formData.toString()
+    })
+    .then(res => res.json())
+    .then(data => {
+      btnMasuk.disabled = false;
+      btnMasuk.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Absen Masuk';
+      alert("Absen Masuk Berhasil!");
+    })
+    .catch(err => {
+      btnMasuk.disabled = false;
+      btnMasuk.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Absen Masuk';
+      alert("Gagal mengirim data. Silakan coba lagi.");
     });
+  });
 }
 
-
 // ===============================
-// 8. ABSEN PULANG
+// ABSEN PULANG
 // ===============================
-
 const btnPulang = document.getElementById("btnPulang");
 if (btnPulang) {
-    btnPulang.addEventListener("click", function () {
-        const nama = document.getElementById("nama")?.value.trim() || "";
-        const jabatan = document.getElementById("jabatan")?.value.trim() || "";
-        const masuk = document.getElementById("jamMasuk")?.value || "";
-        const pulang = document.getElementById("jamPulang")?.value || "";
-        const keterangan = document.getElementById("keterangan")?.value.trim() || "";
+  btnPulang.addEventListener("click", function () {
+    const nama = document.getElementById("nama")?.value.trim() || "";
+    const jabatan = document.getElementById("jabatan")?.value.trim() || "";
+    const status = document.getElementById("status")?.value || "";
+    const tanggal = document.getElementById("tanggalAbsen")?.value || "";
+    const jamMasuk = document.getElementById("jamMasuk")?.value || "-";
+    const jamPulang = document.getElementById("jamPulang")?.value || "";
+    const keterangan = document.getElementById("keterangan")?.value.trim() || "";
 
-        if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
-        if (pulang === "") { alert("Jam pulang harus diisi."); return; }
-        if (masuk !== "" && pulang < masuk) { alert("Jam pulang tidak boleh lebih awal dari jam masuk."); return; }
-        if (!fotoSelfieTerakhir) { alert("Silakan ambil foto selfie untuk absen pulang."); return; }
+    if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
+    if (jamPulang === "") { alert("Jam pulang harus diisi."); return; }
 
-        btnPulang.disabled = true;
-        btnPulang.innerText = "Mengirim Data...";
+    btnPulang.disabled = true;
+    btnPulang.innerText = "Mengirim Data...";
 
-        const formData = new URLSearchParams();
-        formData.append("jenisAbsen", "Absen Pulang");
-        formData.append("nama", nama);
-        formData.append("jabatan", jabatan || "-");
-        formData.append("tanggal", document.getElementById("tanggalAbsen")?.value || "");
-        formData.append("jamMasuk", masuk || "-");
-        formData.append("jamPulang", pulang);
-        formData.append("status", document.getElementById("status")?.value || "");
-        formData.append("keterangan", keterangan || "-");
-        formData.append("kehadiran", "-");
-        formData.append("lokasi", lokasiTerkini);
-        formData.append("alasan", "-");
-        formData.append("fotoSelfie", fotoSelfieTerakhir);
+    const formData = new URLSearchParams();
+    formData.append("jenisAbsen", "Absen Pulang");
+    formData.append("nama", nama);
+    formData.append("jabatan", jabatan || "-");
+    formData.append("tanggal", tanggal);
+    formData.append("jamMasuk", jamMasuk);
+    formData.append("jamPulang", jamPulang);
+    formData.append("status", status);
+    formData.append("keterangan", keterangan || "-");
+    formData.append("kehadiran", "-");
+    formData.append("lokasi", typeof lokasiTerkini !== "undefined" ? lokasiTerkini : "-");
+    formData.append("alasan", "-");
+    formData.append("fotoSelfie", typeof fotoSelfieTerakhir !== "undefined" ? fotoSelfieTerakhir : "-");
 
-        fetch(SCRIPT_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: formData.toString()
-        })
-        .then(() => {
-            btnPulang.disabled = false;
-            btnPulang.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Absen Pulang';
-
-            const elHasil = document.getElementById("hasil");
-            if (elHasil) {
-                elHasil.innerHTML += `
-                    <hr style="margin: 15px 0; border: 0; border-top: 1px dashed #ccc;">
-                    <b style="color:#2563eb;">ABSEN PULANG BERHASIL & TERSIMPAN</b><br><br>
-                    <img src="${fotoSelfieTerakhir}" style="width:150px; height:150px; object-fit:cover; display:block; border-radius:15px; border:3px solid #2563eb; margin-bottom:15px;">
-                    <b>Jam Pulang:</b> ${pulang}<br>
-                    <b>Keterangan:</b> ${keterangan || "-"}<br>
-                    <b>Lokasi Pulang:</b> ${lokasiTerkini}
-                `;
-            }
-            const elStatusHari = document.getElementById("statusHari");
-            if (elStatusHari) elStatusHari.innerHTML = "🔵 Sudah Absen Pulang";
-        })
-        .catch(err => {
-            btnPulang.disabled = false;
-            btnPulang.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Absen Pulang';
-            alert("Gagal mengirim data.");
-        });
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formData.toString()
+    })
+    .then(res => res.json())
+    .then(data => {
+      btnPulang.disabled = false;
+      btnPulang.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Absen Pulang';
+      alert("Absen Pulang Berhasil!");
+    })
+    .catch(err => {
+      btnPulang.disabled = false;
+      btnPulang.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Absen Pulang';
+      alert("Gagal mengirim data.");
     });
+  });
 }
