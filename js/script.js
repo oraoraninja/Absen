@@ -3,41 +3,35 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLmyIL4VfU9utOkrz6V
 // ===============================
 // FUNGSI UPDATE TAMPILAN STATUS & LOCAL STORAGE
 // ===============================
-function updateStatusTampilan(teksStatus, warnaIndikator = "#28a745") {
-    // Cari elemen teks status
-    const elStatusText = document.getElementById("textStatus") || document.querySelector(".status-box div:last-child");
-    if (elStatusText) {
-        // Jika elemen membungkus <small> dan teks, pastikan hanya mengubah baris teksnya
-        const nodeTeks = Array.from(elStatusText.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
-        if (nodeTeks) {
-            nodeTeks.textContent = teksStatus;
-        } else {
-            elStatusText.innerText = teksStatus;
-        }
+function updateStatusTampilan(teksStatus, iconEmoji = "🟢") {
+    // 1. Update Teks Status Hari Ini
+    const elStatusHari = document.getElementById("statusHari");
+    if (elStatusHari) {
+        elStatusHari.textContent = teksStatus;
     }
 
-    // Cari indikator lingkaran warna
-    const elIndicator = document.querySelector(".status-indicator") || document.querySelector(".status-box div:first-child");
-    if (elIndicator) {
-        elIndicator.style.backgroundColor = warnaIndikator;
+    // 2. Update Icon Emoji (misal: 🟢 untuk masuk, 🔵 untuk pulang)
+    const elStatusIcon = document.querySelector(".status-icon");
+    if (elStatusIcon) {
+        elStatusIcon.textContent = iconEmoji;
     }
 
-    // Simpan ke local storage berdasarkan tanggal hari ini agar tidak hilang saat di-refresh
+    // 3. Simpan ke localStorage berdasarkan tanggal hari ini
     const hariIniStr = new Date().toISOString().split('T')[0];
     localStorage.setItem("statusAbsen_" + hariIniStr, JSON.stringify({
         teks: teksStatus,
-        warna: warnaIndikator
+        icon: iconEmoji
     }));
 }
 
-// Muat status terupdate saat halaman dimuat
+// Muat status tersimpan dari localStorage saat halaman dimuat
 document.addEventListener("DOMContentLoaded", function () {
     const hariIniStr = new Date().toISOString().split('T')[0];
     const savedData = localStorage.getItem("statusAbsen_" + hariIniStr);
     if (savedData) {
         try {
             const parsed = JSON.parse(savedData);
-            updateStatusTampilan(parsed.teks, parsed.warna);
+            updateStatusTampilan(parsed.teks, parsed.icon);
         } catch (e) {
             console.error("Gagal membaca status tersimpan", e);
         }
@@ -48,7 +42,6 @@ document.addEventListener("DOMContentLoaded", function () {
 // ===============================
 // 1. TANGGAL & JAM SEKARANG (REALTIME)
 // ===============================
-
 function updateTanggalJam() {
     const sekarang = new Date();
 
@@ -81,7 +74,6 @@ updateTanggalJam();
 // ===============================
 // 2. TANGGAL ABSENSI & ALASAN
 // ===============================
-
 const inputTanggal = document.getElementById("tanggalAbsen");
 const hariIni = new Date();
 const yyyy = hariIni.getFullYear();
@@ -110,7 +102,6 @@ if (inputTanggal) {
 // ===============================
 // 3. STATUS KETERLAMBATAN
 // ===============================
-
 function cekKeterlambatan(jamMasuk) {
     if (!jamMasuk) return "-";
     if (jamMasuk <= "08:31") {
@@ -126,7 +117,6 @@ function cekKeterlambatan(jamMasuk) {
 // ===============================
 // 4. LOKASI GEOLOCATION
 // ===============================
-
 let lokasiTerkini = "Belum diambil";
 
 function muatLokasiOtomatis() {
@@ -158,7 +148,6 @@ muatLokasiOtomatis();
 // ===============================
 // 5. FITUR KAMERA & SELFIE
 // ===============================
-
 let stream = null;
 let fotoSelfieTerakhir = null;
 
@@ -187,7 +176,7 @@ if (btnKamera) {
             if (hasilFoto) hasilFoto.style.display = "none";
             if (placeholder) placeholder.style.display = "none";
 
-            if (btnSelfie) btnSelfie.style.display = "flex";
+            if (btnSelfie) btnSelfie.style.display = "inline-flex";
             if (btnUlang) btnUlang.style.display = "none";
             btnKamera.style.display = "none"; 
         } catch (err) {
@@ -207,7 +196,6 @@ if (btnSelfie) {
         canvas.height = video.videoHeight;
 
         context.setTransform(1, 0, 0, 1, 0, 0);
-
         context.translate(canvas.width, 0);
         context.scale(-1, 1);
 
@@ -222,7 +210,7 @@ if (btnSelfie) {
         if (video) video.style.display = "none";
 
         if (btnSelfie) btnSelfie.style.display = "none";
-        if (btnUlang) btnUlang.style.display = "flex";
+        if (btnUlang) btnUlang.style.display = "inline-flex";
 
         stream.getTracks().forEach(track => track.stop());
     });
@@ -239,7 +227,6 @@ if (btnUlang) {
 // ===============================
 // 6. ISIAN JAM OTOMATIS
 // ===============================
-
 function waktuSekarang() {
     const sekarang = new Date();
     let jam = sekarang.getHours().toString().padStart(2, '0');
@@ -265,7 +252,7 @@ if (btnNowPulang) {
 
 
 // ===============================
-// ABSEN MASUK
+// 7. PROSES ABSEN MASUK
 // ===============================
 const btnMasuk = document.getElementById("btnMasuk");
 if (btnMasuk) {
@@ -281,7 +268,7 @@ if (btnMasuk) {
     if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
     if (status === "Hadir" && jamMasuk === "") { alert("Jam masuk harus diisi."); return; }
 
-    const hasilKehadiran = typeof cekKeterlambatan === "function" ? cekKeterlambatan(jamMasuk) : "Tepat Waktu";
+    const hasilKehadiran = cekKeterlambatan(jamMasuk);
 
     btnMasuk.disabled = true;
     btnMasuk.innerText = "Mengirim Data...";
@@ -296,9 +283,9 @@ if (btnMasuk) {
     formData.append("status", status);
     formData.append("keterangan", keterangan || "-");
     formData.append("kehadiran", hasilKehadiran);
-    formData.append("lokasi", typeof lokasiTerkini !== "undefined" ? lokasiTerkini : "-");
+    formData.append("lokasi", lokasiTerkini);
     formData.append("alasan", alasan || "-");
-    formData.append("fotoSelfie", typeof fotoSelfieTerakhir !== "undefined" ? fotoSelfieTerakhir : "-");
+    formData.append("fotoSelfie", fotoSelfieTerakhir || "-");
 
     fetch(SCRIPT_URL, {
       method: "POST",
@@ -310,9 +297,13 @@ if (btnMasuk) {
       btnMasuk.disabled = false;
       btnMasuk.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Absen Masuk';
       
-      // Update Tampilan Status di UI
-      updateStatusTampilan("Sudah Absen Masuk (" + (jamMasuk || "Masuk") + ")", "#28a745");
-      
+      // Update elemen status pada HTML
+      const statusText = `Sudah Absen Masuk (${jamMasuk || "Masuk"})`;
+      updateStatusTampilan(statusText, "🟢");
+
+      const elHasil = document.getElementById("hasil");
+      if (elHasil) elHasil.innerText = `Absen Masuk Berhasil pada jam ${jamMasuk}`;
+
       alert("Absen Masuk Berhasil!");
     })
     .catch(err => {
@@ -324,7 +315,7 @@ if (btnMasuk) {
 }
 
 // ===============================
-// ABSEN PULANG
+// 8. PROSES ABSEN PULANG
 // ===============================
 const btnPulang = document.getElementById("btnPulang");
 if (btnPulang) {
@@ -353,9 +344,9 @@ if (btnPulang) {
     formData.append("status", status);
     formData.append("keterangan", keterangan || "-");
     formData.append("kehadiran", "-");
-    formData.append("lokasi", typeof lokasiTerkini !== "undefined" ? lokasiTerkini : "-");
+    formData.append("lokasi", lokasiTerkini);
     formData.append("alasan", "-");
-    formData.append("fotoSelfie", typeof fotoSelfieTerakhir !== "undefined" ? fotoSelfieTerakhir : "-");
+    formData.append("fotoSelfie", fotoSelfieTerakhir || "-");
 
     fetch(SCRIPT_URL, {
       method: "POST",
@@ -367,8 +358,12 @@ if (btnPulang) {
       btnPulang.disabled = false;
       btnPulang.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Absen Pulang';
       
-      // Update Tampilan Status di UI
-      updateStatusTampilan("Sudah Absen Pulang (" + jamPulang + ")", "#0d6efd");
+      // Update elemen status pada HTML
+      const statusText = `Sudah Absen Pulang (${jamPulang})`;
+      updateStatusTampilan(statusText, "🔵");
+
+      const elHasil = document.getElementById("hasil");
+      if (elHasil) elHasil.innerText = `Absen Pulang Berhasil pada jam ${jamPulang}`;
 
       alert("Absen Pulang Berhasil!");
     })
