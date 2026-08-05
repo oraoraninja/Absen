@@ -1,6 +1,51 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLmyIL4VfU9utOkrz6VdJmMLY937fPxHSjLU-auQlSJ_vOPfRhLcNxCulA-FRf-Z95/exec";
 
 // ===============================
+// FUNGSI UPDATE TAMPILAN STATUS & LOCAL STORAGE
+// ===============================
+function updateStatusTampilan(teksStatus, warnaIndikator = "#28a745") {
+    // Cari elemen teks status
+    const elStatusText = document.getElementById("textStatus") || document.querySelector(".status-box div:last-child");
+    if (elStatusText) {
+        // Jika elemen membungkus <small> dan teks, pastikan hanya mengubah baris teksnya
+        const nodeTeks = Array.from(elStatusText.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+        if (nodeTeks) {
+            nodeTeks.textContent = teksStatus;
+        } else {
+            elStatusText.innerText = teksStatus;
+        }
+    }
+
+    // Cari indikator lingkaran warna
+    const elIndicator = document.querySelector(".status-indicator") || document.querySelector(".status-box div:first-child");
+    if (elIndicator) {
+        elIndicator.style.backgroundColor = warnaIndikator;
+    }
+
+    // Simpan ke local storage berdasarkan tanggal hari ini agar tidak hilang saat di-refresh
+    const hariIniStr = new Date().toISOString().split('T')[0];
+    localStorage.setItem("statusAbsen_" + hariIniStr, JSON.stringify({
+        teks: teksStatus,
+        warna: warnaIndikator
+    }));
+}
+
+// Muat status terupdate saat halaman dimuat
+document.addEventListener("DOMContentLoaded", function () {
+    const hariIniStr = new Date().toISOString().split('T')[0];
+    const savedData = localStorage.getItem("statusAbsen_" + hariIniStr);
+    if (savedData) {
+        try {
+            const parsed = JSON.parse(savedData);
+            updateStatusTampilan(parsed.teks, parsed.warna);
+        } catch (e) {
+            console.error("Gagal membaca status tersimpan", e);
+        }
+    }
+});
+
+
+// ===============================
 // 1. TANGGAL & JAM SEKARANG (REALTIME)
 // ===============================
 
@@ -151,42 +196,34 @@ if (btnKamera) {
     });
 }
 
-// 2. Ambil Selfie (Disesuaikan dengan Preview Kamera)
+// 2. Ambil Selfie
 if (btnSelfie) {
     btnSelfie.addEventListener("click", function () {
         if (!stream) return;
 
         const context = canvas.getContext("2d");
 
-        // Set ukuran canvas sesuai resolusi video asli
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
-        // Reset transformasi sebelumnya jika ada
         context.setTransform(1, 0, 0, 1, 0, 0);
 
-        // Balikkan canvas secara horizontal agar persis seperti efek mirror pada video preview
         context.translate(canvas.width, 0);
         context.scale(-1, 1);
 
-        // Gambar elemen video ke canvas yang telah dibalik
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Convert canvas ke Base64 / URL Gambar
         fotoSelfieTerakhir = canvas.toDataURL("image/jpeg");
 
-        // Tampilkan hasil foto dan sembunyikan video
         if (hasilFoto) {
             hasilFoto.src = fotoSelfieTerakhir;
             hasilFoto.style.display = "block";
         }
         if (video) video.style.display = "none";
 
-        // Atur tampilan tombol
         if (btnSelfie) btnSelfie.style.display = "none";
         if (btnUlang) btnUlang.style.display = "flex";
 
-        // Matikan stream kamera untuk menghemat daya
         stream.getTracks().forEach(track => track.stop());
     });
 }
@@ -194,7 +231,6 @@ if (btnSelfie) {
 // 3. Ambil Ulang Foto
 if (btnUlang) {
     btnUlang.addEventListener("click", function () {
-        // Klik ulang akan memicu tombol aktifkan kamera kembali
         if (btnKamera) btnKamera.click();
     });
 }
@@ -245,7 +281,6 @@ if (btnMasuk) {
     if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
     if (status === "Hadir" && jamMasuk === "") { alert("Jam masuk harus diisi."); return; }
 
-    // Hitung status keterlambatan
     const hasilKehadiran = typeof cekKeterlambatan === "function" ? cekKeterlambatan(jamMasuk) : "Tepat Waktu";
 
     btnMasuk.disabled = true;
@@ -274,6 +309,10 @@ if (btnMasuk) {
     .then(data => {
       btnMasuk.disabled = false;
       btnMasuk.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Absen Masuk';
+      
+      // Update Tampilan Status di UI
+      updateStatusTampilan("Sudah Absen Masuk (" + (jamMasuk || "Masuk") + ")", "#28a745");
+      
       alert("Absen Masuk Berhasil!");
     })
     .catch(err => {
@@ -327,6 +366,10 @@ if (btnPulang) {
     .then(data => {
       btnPulang.disabled = false;
       btnPulang.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Absen Pulang';
+      
+      // Update Tampilan Status di UI
+      updateStatusTampilan("Sudah Absen Pulang (" + jamPulang + ")", "#0d6efd");
+
       alert("Absen Pulang Berhasil!");
     })
     .catch(err => {
