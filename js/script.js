@@ -279,8 +279,15 @@ if (btnMasuk) {
     const alasan = document.getElementById("alasan")?.value.trim() || "";
     const keterangan = document.getElementById("keterangan")?.value.trim() || "";
 
+    // VALIDASI INPUT
     if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
     if (status === "Hadir" && jamMasuk === "") { alert("Jam masuk harus diisi."); return; }
+    
+    // VALIDASI WAJIB SELFIE
+    if (!fotoSelfieTerakhir) { 
+        alert("Silakan ambil foto selfie terlebih dahulu sebelum melakukan Absen Masuk."); 
+        return; 
+    }
 
     const hasilKehadiran = cekKeterlambatan(jamMasuk);
 
@@ -299,7 +306,7 @@ if (btnMasuk) {
     formData.append("kehadiran", hasilKehadiran);
     formData.append("lokasi", lokasiTerkini);
     formData.append("alasan", alasan || "-");
-    formData.append("fotoSelfie", fotoSelfieTerakhir || "-");
+    formData.append("fotoSelfie", fotoSelfieTerakhir);
 
     fetch(SCRIPT_URL, {
       method: "POST",
@@ -347,8 +354,15 @@ if (btnPulang) {
     const jamPulang = document.getElementById("jamPulang")?.value || "";
     const keterangan = document.getElementById("keterangan")?.value.trim() || "";
 
+    // VALIDASI INPUT
     if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
     if (jamPulang === "") { alert("Jam pulang harus diisi."); return; }
+
+    // VALIDASI WAJIB SELFIE
+    if (!fotoSelfieTerakhir) { 
+        alert("Silakan ambil foto selfie terlebih dahulu sebelum melakukan Absen Pulang."); 
+        return; 
+    }
 
     btnPulang.disabled = true;
     btnPulang.innerText = "Mengirim Data...";
@@ -365,7 +379,7 @@ if (btnPulang) {
     formData.append("kehadiran", "-");
     formData.append("lokasi", lokasiTerkini);
     formData.append("alasan", "-");
-    formData.append("fotoSelfie", fotoSelfieTerakhir || "-");
+    formData.append("fotoSelfie", fotoSelfieTerakhir);
 
     fetch(SCRIPT_URL, {
       method: "POST",
