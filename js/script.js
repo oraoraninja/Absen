@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmv-A1dEmCuFIRTyKyXIEjnbQoUaVHwCUmTJIQS_JVrRTRunJD5d4zOKDkC_sHBk7A/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLmyIL4VfU9utOkrz6VdJmMLY937fPxHSjLU-auQlSJ_vOPfRhLcNxCulA-FRf-Z95/exec";
 
 // ===============================
 // 1. TANGGAL & JAM SEKARANG (REALTIME)
