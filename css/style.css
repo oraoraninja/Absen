@@ -1,436 +1,364 @@
-/*=============================
-RESET
-==============================*/
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmv-A1dEmCuFIRTyKyXIEjnbQoUaVHwCUmTJIQS_JVrRTRunJD5d4zOKDkC_sHBk7A/exec";
 
-/*=============================
-Bagian 1
-==============================*/
+// ===============================
+// 1. TANGGAL & JAM SEKARANG (REALTIME)
+// ===============================
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+function updateTanggalJam() {
+    const sekarang = new Date();
 
-body{
-    font-family:'Poppins',sans-serif;
-    background:linear-gradient(135deg,#2563eb,#1e3a8a);
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:30px;
-}
+    const elTanggal = document.getElementById("tanggalSekarang");
+    const elJam = document.getElementById("jamSekarang");
 
-/*=============================
-Bagian 2
-==============================*/
-
-.container{
-    width:100%;
-    max-width:700px;
-}
-
-.card{
-    background:#fff;
-    border-radius:25px;
-    padding:35px;
-    box-shadow:0 15px 40px rgba(0,0,0,.18);
-    animation:fade .5s ease;
-    transition:.3s;
-}
-
-.card:hover{
-    transform:translateY(-4px);
-}
-
-@keyframes fade{
-    from{
-        opacity:0;
-        transform:translateY(20px);
+    if (elTanggal) {
+        elTanggal.textContent = sekarang.toLocaleDateString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        });
     }
-    to{
-        opacity:1;
-        transform:translateY(0);
+
+    if (elJam) {
+        elJam.textContent = sekarang.toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false
+        });
     }
 }
 
-/*=============================
-Bagian 3
-==============================*/
-.logo{
-    text-align:center;
-    margin-bottom:15px;
+setInterval(updateTanggalJam, 1000);
+updateTanggalJam();
+
+
+// ===============================
+// 2. TANGGAL ABSENSI & ALASAN
+// ===============================
+
+const inputTanggal = document.getElementById("tanggalAbsen");
+const hariIni = new Date();
+const yyyy = hariIni.getFullYear();
+const mm = String(hariIni.getMonth() + 1).padStart(2, "0");
+const dd = String(hariIni.getDate()).padStart(2, "0");
+const tanggalHariIni = `${yyyy}-${mm}-${dd}`;
+
+if (inputTanggal) {
+    inputTanggal.value = tanggalHariIni;
+    inputTanggal.max = tanggalHariIni;
+
+    // Tampilkan kolom alasan jika memilih tanggal kemarin/lampau
+    inputTanggal.addEventListener("change", function () {
+        const alasanGroup = document.getElementById("alasanGroup");
+        if (alasanGroup) {
+            if (this.value < tanggalHariIni) {
+                alasanGroup.style.display = "block";
+            } else {
+                alasanGroup.style.display = "none";
+            }
+        }
+    });
 }
 
-.logo img{
-    width:90px;
-    transition:.3s;
+
+// ===============================
+// 3. STATUS KETERLAMBATAN
+// ===============================
+
+function cekKeterlambatan(jamMasuk) {
+    if (!jamMasuk) return "-";
+    if (jamMasuk <= "08:31") {
+        return "Tepat Waktu";
+    }
+    if (jamMasuk <= "09:01") {
+        return "Terlambat";
+    }
+    return "Sangat Terlambat";
 }
 
-.logo img:hover{
-    transform:scale(1.05);
-}
 
-h1{
-    text-align:center;
-    color:#1d4ed8;
-    font-size:34px;
-    margin-bottom:5px;
-}
+// ===============================
+// 4. LOKASI GEOLOCATION
+// ===============================
 
-.subtitle{
-    text-align:center;
-    color:#777;
-    margin-bottom:25px;
-}
+let lokasiTerkini = "Belum diambil";
 
-/*=============================
-HEADER
-==============================*/
+function muatLokasiOtomatis() {
+    const elLokasi = document.getElementById("lokasi");
+    if (!elLokasi) return;
 
-.header{
-    text-align:center;
-    margin-bottom:30px;
-}
-
-.status-card{
-    margin-top:20px;
-    display:flex;
-    align-items:center;
-    gap:15px;
-    justify-content:center;
-    background:#eff6ff;
-    border:1px solid #bfdbfe;
-    border-radius:15px;
-    padding:15px;
-}
-
-.status-icon{
-    font-size:28px;
-}
-
-/*=============================
-Bagian 4
-==============================*/
-
-.information{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
-    margin-bottom:25px;
-}
-
-.box{
-    display:flex;
-    align-items:center;
-    gap:18px;
-    padding:18px;
-    border-radius:18px;
-    background:#eef4ff;
-    transition:.3s;
-}
-
-.box:hover{
-    background:#dbeafe;
-    transform:translateY(-3px);
-}
-
-.box i{
-    font-size:24px;
-    color:#2563eb;
-}
-
-.box h3{
-    font-size:15px;
-    margin-bottom:3px;
-}
-
-.box span{
-    font-size:14px;
-    color:#555;
-}
-
-/*=============================
-Bagian 5
-==============================*/
-
-.input-group{
-    margin-bottom:18px;
-}
-
-/*=============================
-TIME GROUP
-==============================*/
-
-.time-group{
-    display:flex;
-    gap:8px;
-}
-
-.time-group input{
-    flex:1;
-}
-
-.btn-time{
-    width:55px;
-    min-width:55px;
-    height:52px;
-    padding:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-shrink:0;
-}
-
-.btn-time:hover{
-    background:#1d4ed8;
-}
-
-label{
-    font-weight:600;
-    display:block;
-    margin-bottom:8px;
-}
-
-label i{
-    color:#2563eb;
-    margin-right:6px;
-}
-
-input,
-select,
-textarea{
-    width:100%;
-    padding:14px;
-    border:1px solid #ddd;
-    border-radius:12px;
-    font-size:15px;
-    font-family:Poppins;
-    transition:.3s;
-}
-
-input:focus,
-select:focus,
-textarea:focus{
-    outline:none;
-    border-color:#2563eb;
-    box-shadow:0 0 10px rgba(37,99,235,.2);
-}
-
-/*=============================
-FORM GRID
-==============================*/
-
-.form-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-}
-
-.form-grid-3{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
-}
-
-/*=============================
-INPUT TAMBAHAN
-==============================*/
-
-input,
-select{
-    min-height:52px;
-}
-
-input:hover,
-select:hover,
-textarea:hover{
-    border-color:#60a5fa;
-}
-
-/*=============================
-Bagian 6
-==============================*/
-.button-group{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-    margin-top:25px;
-}
-
-button{
-    width:100%;
-    height:55px;
-    border:none;
-    border-radius:14px;
-    font-size:16px;
-    font-weight:600;
-    cursor:pointer;
-    transition:0.3s;
-    color:#fff;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:8px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.15);
-}
-
-#btnMasuk{
-    background:#16a34a;
-}
-
-#btnMasuk:hover{
-    background:#15803d;
-    transform:translateY(-3px);
-    box-shadow:0 8px 20px rgba(22,163,74,.35);
-}
-
-#btnPulang{
-    background:#dc2626;
-}
-
-#btnPulang:hover{
-    background:#b91c1c;
-    transform:translateY(-3px);
-    box-shadow:0 8px 20px rgba(220,38,38,.35);
-}
-
-/*=============================
-Bagian 7
-==============================*/
-#hasil{
-    margin-top:25px;
-    padding:18px;
-    border-radius:15px;
-    background:#f8fafc;
-    border-left:6px solid #2563eb;
-    line-height:1.8;
-}
-
-@media(max-width:600px){
-    .card{
-        padding:22px;
+    if (!navigator.geolocation) {
+        elLokasi.textContent = "GPS tidak didukung";
+        return;
     }
 
-    .button-group{
-        grid-template-columns:1fr;
-    }
+    navigator.geolocation.getCurrentPosition(
+        function (position) {
+            const lat = position.coords.latitude.toFixed(6);
+            const lng = position.coords.longitude.toFixed(6);
+            lokasiTerkini = `${lat}, ${lng}`;
+            elLokasi.textContent = lokasiTerkini;
+        },
+        function (error) {
+            elLokasi.textContent = "Gagal mengambil lokasi";
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
 }
 
-/*=============================
-SCROLLBAR
-==============================*/
+muatLokasiOtomatis();
 
-::-webkit-scrollbar{
-    width:8px;
+
+// ===============================
+// 5. FITUR KAMERA & SELFIE
+// ===============================
+
+let stream = null;
+let fotoSelfieTerakhir = null;
+
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const hasilFoto = document.getElementById("hasilFoto");
+
+const btnKamera = document.getElementById("btnKamera");
+const btnSelfie = document.getElementById("btnSelfie");
+const btnUlang = document.getElementById("btnUlang");
+const placeholder = document.getElementById("cameraPlaceholder");
+
+// 1. Aktifkan Kamera
+if (btnKamera) {
+    btnKamera.addEventListener("click", async function () {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user" },
+                audio: false
+            });
+
+            if (video) {
+                video.srcObject = stream;
+                video.style.display = "block";
+            }
+            if (hasilFoto) hasilFoto.style.display = "none";
+            if (placeholder) placeholder.style.display = "none";
+
+            if (btnSelfie) btnSelfie.style.display = "flex";
+            if (btnUlang) btnUlang.style.display = "none";
+            btnKamera.style.display = "none"; 
+        } catch (err) {
+            alert("Kamera tidak dapat diakses. Pastikan izin kamera telah diberikan.");
+        }
+    });
 }
 
-::-webkit-scrollbar-thumb{
-    background:#2563eb;
-    border-radius:10px;
+// 2. Ambil Selfie (Disesuaikan dengan Preview Kamera)
+if (btnSelfie) {
+    btnSelfie.addEventListener("click", function () {
+        if (!stream) return;
+
+        const context = canvas.getContext("2d");
+
+        // Set ukuran canvas sesuai resolusi video asli
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Reset transformasi sebelumnya jika ada
+        context.setTransform(1, 0, 0, 1, 0, 0);
+
+        // Balikkan canvas secara horizontal agar persis seperti efek mirror pada video preview
+        context.translate(canvas.width, 0);
+        context.scale(-1, 1);
+
+        // Gambar elemen video ke canvas yang telah dibalik
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert canvas ke Base64 / URL Gambar
+        fotoSelfieTerakhir = canvas.toDataURL("image/jpeg");
+
+        // Tampilkan hasil foto dan sembunyikan video
+        if (hasilFoto) {
+            hasilFoto.src = fotoSelfieTerakhir;
+            hasilFoto.style.display = "block";
+        }
+        if (video) video.style.display = "none";
+
+        // Atur tampilan tombol
+        if (btnSelfie) btnSelfie.style.display = "none";
+        if (btnUlang) btnUlang.style.display = "flex";
+
+        // Matikan stream kamera untuk menghemat daya
+        stream.getTracks().forEach(track => track.stop());
+    });
 }
 
-::-webkit-scrollbar-track{
-    background:#f1f5f9;
+// 3. Ambil Ulang Foto
+if (btnUlang) {
+    btnUlang.addEventListener("click", function () {
+        // Klik ulang akan memicu tombol aktifkan kamera kembali
+        if (btnKamera) btnKamera.click();
+    });
 }
 
-/*=============================
-RESPONSIVE
-==============================*/
 
-@media (max-width:900px){
-    .information{
-        grid-template-columns:1fr;
-    }
+// ===============================
+// 6. ISIAN JAM OTOMATIS
+// ===============================
 
-    .card{
-        padding:22px;
-    }
-
-    .button-group{
-        grid-template-columns:1fr;
-    }
-
-    .form-grid,
-    .form-grid-3{
-        grid-template-columns:1fr;
-    }
+function waktuSekarang() {
+    const sekarang = new Date();
+    let jam = sekarang.getHours().toString().padStart(2, '0');
+    let menit = sekarang.getMinutes().toString().padStart(2, '0');
+    return `${jam}:${menit}`;
 }
 
-/*=============================
-SELFIE
-==============================*/
-
-.selfie-section{
-    margin-top:25px;
+const btnNowMasuk = document.getElementById("btnNowMasuk");
+if (btnNowMasuk) {
+    btnNowMasuk.addEventListener("click", function () {
+        const elJamMasuk = document.getElementById("jamMasuk");
+        if (elJamMasuk) elJamMasuk.value = waktuSekarang();
+    });
 }
 
-.camera-box{
-    width:100%;
-    height:350px;
-    border:2px dashed #cbd5e1;
-    border-radius:18px;
-    overflow:hidden;
-    background:#f8fafc;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    position:relative;
-    margin-top:10px;
-    margin-bottom:15px;
+const btnNowPulang = document.getElementById("btnNowPulang");
+if (btnNowPulang) {
+    btnNowPulang.addEventListener("click", function () {
+        const elJamPulang = document.getElementById("jamPulang");
+        if (elJamPulang) elJamPulang.value = waktuSekarang();
+    });
 }
 
-.camera-placeholder{
-    text-align:center;
-    color:#94a3b8;
+
+// ===============================
+// 7. ABSEN MASUK
+// ===============================
+
+const btnMasuk = document.getElementById("btnMasuk");
+if (btnMasuk) {
+    btnMasuk.addEventListener("click", function () {
+        const nama = document.getElementById("nama")?.value.trim() || "";
+        const tanggal = document.getElementById("tanggalAbsen")?.value || "";
+        const masuk = document.getElementById("jamMasuk")?.value || "";
+        const status = document.getElementById("status")?.value || "";
+        const alasan = document.getElementById("alasan")?.value.trim() || "";
+
+        if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
+        if (status === "Hadir" && masuk === "") { alert("Jam masuk harus diisi."); return; }
+        if (!fotoSelfieTerakhir) { alert("Silakan ambil foto selfie terlebih dahulu."); return; }
+
+        const hasilKeterlambatan = cekKeterlambatan(masuk);
+        btnMasuk.disabled = true;
+        btnMasuk.innerText = "Mengirim Data...";
+
+        const formData = new URLSearchParams();
+        formData.append("jenisAbsen", "Absen Masuk");
+        formData.append("nama", nama);
+        formData.append("tanggal", tanggal);
+        formData.append("jamMasuk", masuk);
+        formData.append("jamPulang", "-");
+        formData.append("status", status);
+        formData.append("kehadiran", hasilKeterlambatan);
+        formData.append("lokasi", lokasiTerkini);
+        formData.append("alasan", alasan || "-");
+        formData.append("fotoSelfie", fotoSelfieTerakhir);
+
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData.toString()
+        })
+        .then(() => {
+            btnMasuk.disabled = false;
+            btnMasuk.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Absen Masuk';
+            
+            const elHasil = document.getElementById("hasil");
+            if (elHasil) {
+                elHasil.innerHTML = `
+                    <b style="color:#16a34a;">ABSEN MASUK BERHASIL & TERSIMPAN</b><br><br>
+                    <img src="${fotoSelfieTerakhir}" style="width:200px; height:200px; object-fit:cover; display:block; border-radius:15px; border:3px solid #2563eb; margin-bottom:15px;">
+                    <b>Nama:</b> ${nama}<br>
+                    <b>Tanggal:</b> ${tanggal}<br>
+                    <b>Jam Masuk:</b> ${masuk}<br>
+                    <b>Status:</b> ${status}<br>
+                    <b>Kehadiran:</b> ${hasilKeterlambatan}<br>
+                    <b>Lokasi:</b> ${lokasiTerkini}<br>
+                    <b>Alasan:</b> ${alasan || "-"}
+                `;
+            }
+            const elStatusHari = document.getElementById("statusHari");
+            if (elStatusHari) elStatusHari.innerHTML = "🟡 Sudah Absen Masuk";
+        })
+        .catch(err => {
+            btnMasuk.disabled = false;
+            btnMasuk.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Absen Masuk';
+            alert("Gagal mengirim data. Silakan coba lagi.");
+        });
+    });
 }
 
-.camera-placeholder i{
-    font-size:60px;
-    margin-bottom:15px;
-    color:#2563eb;
-}
 
-.camera-placeholder p{
-    font-size:15px;
-}
+// ===============================
+// 8. ABSEN PULANG
+// ===============================
 
-#video{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    transform:scaleX(-1);
-    -webkit-transform:scaleX(-1);
-}
+const btnPulang = document.getElementById("btnPulang");
+if (btnPulang) {
+    btnPulang.addEventListener("click", function () {
+        const nama = document.getElementById("nama")?.value.trim() || "";
+        const masuk = document.getElementById("jamMasuk")?.value || "";
+        const pulang = document.getElementById("jamPulang")?.value || "";
 
-#hasilFoto{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
+        if (nama === "") { alert("Silakan masukkan nama pegawai."); return; }
+        if (pulang === "") { alert("Jam pulang harus diisi."); return; }
+        if (masuk !== "" && pulang < masuk) { alert("Jam pulang tidak boleh lebih awal dari jam masuk."); return; }
+        if (!fotoSelfieTerakhir) { alert("Silakan ambil foto selfie untuk absen pulang."); return; }
 
-.btn-camera{
-    background:#2563eb;
-    margin-top:10px;
-    margin-bottom:15px;
-}
+        btnPulang.disabled = true;
+        btnPulang.innerText = "Mengirim Data...";
 
-.btn-camera:hover{
-    background:#1d4ed8;
-}
+        const formData = new URLSearchParams();
+        formData.append("jenisAbsen", "Absen Pulang");
+        formData.append("nama", nama);
+        formData.append("tanggal", document.getElementById("tanggalAbsen")?.value || "");
+        formData.append("jamMasuk", masuk || "-");
+        formData.append("jamPulang", pulang);
+        formData.append("status", document.getElementById("status")?.value || "");
+        formData.append("kehadiran", "-");
+        formData.append("lokasi", lokasiTerkini);
+        formData.append("alasan", "-");
+        formData.append("fotoSelfie", fotoSelfieTerakhir);
 
-.btn-selfie{
-    background:#16a34a;
-    margin-bottom:12px;
-}
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData.toString()
+        })
+        .then(() => {
+            btnPulang.disabled = false;
+            btnPulang.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Absen Pulang';
 
-.btn-selfie:hover{
-    background:#15803d;
-}
-
-@media(max-width:768px){
-    .camera-box{
-        height:280px;
-    }
+            const elHasil = document.getElementById("hasil");
+            if (elHasil) {
+                elHasil.innerHTML += `
+                    <hr style="margin: 15px 0; border: 0; border-top: 1px dashed #ccc;">
+                    <b style="color:#2563eb;">ABSEN PULANG BERHASIL & TERSIMPAN</b><br><br>
+                    <img src="${fotoSelfieTerakhir}" style="width:150px; height:150px; object-fit:cover; display:block; border-radius:15px; border:3px solid #2563eb; margin-bottom:15px;">
+                    <b>Jam Pulang:</b> ${pulang}<br>
+                    <b>Lokasi Pulang:</b> ${lokasiTerkini}
+                `;
+            }
+            const elStatusHari = document.getElementById("statusHari");
+            if (elStatusHari) elStatusHari.innerHTML = "🔵 Sudah Absen Pulang";
+        })
+        .catch(err => {
+            btnPulang.disabled = false;
+            btnPulang.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Absen Pulang';
+            alert("Gagal mengirim data.");
+        });
+    });
 }
